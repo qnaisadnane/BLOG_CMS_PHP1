@@ -25,14 +25,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if (password_verify($password, $user['password'])) {
                 // Vérifier le rôle (seulement admin et editor/author)
-                if (in_array($user['role'], ['admin', 'editor', 'author'])) {
+                if (in_array($user['role'], ['admin' , 'author'])) {
                     // Connexion réussie
                     $_SESSION['user_id'] = $user['username'];
                     $_SESSION['user_name'] = $user['name'];
                     $_SESSION['user_role'] = $user['role'];
                     
                     // Redirection selon le rôle
-                    if ($user['role'] === 'admin' || $user['role'] === 'editor') {
+                    if ($user['role'] === 'admin') {
                         header('Location: admin.php');
                         exit;
                     } else {
