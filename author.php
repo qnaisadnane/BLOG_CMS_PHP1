@@ -2,8 +2,8 @@
 session_start();
 require_once 'database.php';
 
-// Vérifier si l'utilisateur est connecté et est auteur
-if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], ['author', 'editor'])) {
+// Verifier si utilisateur est connecte est auteur
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], ['author'])) {
     header('Location: login.php');
     exit;
 }
@@ -11,68 +11,64 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], ['author',
 $success = '';
 $error = '';
 
-// === CREATE - Ajouter un article ===
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_article'])) {
-    $title = trim($_POST['title']);
-    $content = trim($_POST['content']);
+    $title = $_POST['title'];
+    $content = $_POST['content'];
     $status = $_POST['status'];
-    $id_categorie = intval($_POST['id_categorie']);
+    $id_categorie = $_POST['id_categorie'];
     
     if (!empty($title) && !empty($content) && $id_categorie > 0) {
         $stmt = $conn->prepare("INSERT INTO Article (title, content, status, username, id_categorie) VALUES (?, ?, ?, ?, ?)");
         if ($stmt->execute([$title, $content, $status, $_SESSION['user_id'], $id_categorie])) {
-            $success = "Article créé avec succès !";
+            $success = "Article created ";
         } else {
-            $error = "Erreur lors de la création de l'article.";
+            $error = "Erreur";
         }
     } else {
-        $error = "Veuillez remplir tous les champs.";
+        $error = "select all fields";
     }
 }
 
-// === UPDATE - Modifier un article ===
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_article'])) {
-    $id_article = intval($_POST['id_article']);
-    $title = trim($_POST['title']);
-    $content = trim($_POST['content']);
+    $id_article = $_POST['id_article'];
+    $title = $_POST['title'];
+    $content = $_POST['content'];
     $status = $_POST['status'];
-    $id_categorie = intval($_POST['id_categorie']);
+    $id_categorie = $_POST['id_categorie'];
     
     if (!empty($title) && !empty($content) && $id_categorie > 0) {
         $stmt = $conn->prepare("UPDATE Article SET title = ?, content = ?, status = ?, id_categorie = ? WHERE id_article = ? AND username = ?");
         if ($stmt->execute([$title, $content, $status, $id_categorie, $id_article, $_SESSION['user_id']])) {
-            $success = "Article modifié avec succès !";
+            $success = "Article modified";
         } else {
-            $error = "Erreur lors de la modification de l'article.";
+            $error = "Erreur";
         }
     } else {
-        $error = "Veuillez remplir tous les champs.";
+        $error = "select all fields";
     }
 }
 
-// === DELETE - Supprimer un article ===
 if (isset($_GET['delete'])) {
-    $id_article = intval($_GET['delete']);
-    $stmt = $conn->prepare("DELETE FROM Article WHERE id_article = ? AND username = ?");
-    if ($stmt->execute([$id_article, $_SESSION['user_id']])) {
-        $success = "Article supprimé avec succès !";
+    $id_article = $_GET['delete'];
+    $stmt = $conn->prepare("DELETE FROM Article WHERE id_article = ?");
+    if ($stmt->execute([$id_article])) {
+        $success = "Article deleted";
     } else {
-        $error = "Erreur lors de la suppression de l'article.";
+        $error = "Erreur ";
     }
 }
 
-// === READ - Récupérer les articles de l'auteur ===
 $stmt = $conn->prepare("SELECT * FROM Article WHERE username = ? ORDER BY date_creation DESC");
 $stmt->execute([$_SESSION['user_id']]);
 $articles = $stmt->fetchAll();
 
-// Récupérer les catégories
 $categories = $conn->query("SELECT * FROM categorie ORDER BY nom_categorie")->fetchAll();
 
-// Récupérer l'article à modifier si demandé
 $article_to_edit = null;
 if (isset($_GET['edit'])) {
-    $stmt = $pdo->prepare("SELECT * FROM Article WHERE id_article = ? AND username = ?");
+    $stmt = $conn->prepare("SELECT * FROM Article WHERE id_article = ? AND username = ?");
     $stmt->execute([intval($_GET['edit']), $_SESSION['user_id']]);
     $article_to_edit = $stmt->fetch();
 }
@@ -94,16 +90,14 @@ if (isset($_GET['edit'])) {
                 <div class="flex items-center space-x-4">
                     <i class="fas fa-pen-fancy text-3xl text-blue-600"></i>
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-800">Espace Auteur</h1>
-                        <p class="text-sm text-gray-600">Bienvenue, <?= htmlspecialchars($_SESSION['user_name']) ?></p>
+                        <h1 class="text-2xl font-bold text-gray-800">Author</h1>
+                        <p class="text-sm text-gray-600">Welcome, <?= htmlspecialchars($_SESSION['user_name']) ?></p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <a href="index.php" class="text-gray-600 hover:text-blue-600 transition">
-                        <i class="fas fa-home mr-2"></i>Accueil
-                    </a>
+                    
                     <a href="logout.php" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">
-                        <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
                     </a>
                 </div>
             </div>
@@ -124,42 +118,6 @@ if (isset($_GET['edit'])) {
         </div>
         <?php endif; ?>
 
-        <!-- Statistiques de l'auteur -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-lg p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-blue-100 text-sm mb-1">Mes Articles</p>
-                        <p class="text-4xl font-bold"><?= count($articles) ?></p>
-                    </div>
-                    <i class="fas fa-newspaper text-5xl opacity-30"></i>
-                </div>
-            </div>
-
-            <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl shadow-lg p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-green-100 text-sm mb-1">Publiés</p>
-                        <p class="text-4xl font-bold">
-                            <?= count(array_filter($articles, fn($a) => $a['status'] === 'published')) ?>
-                        </p>
-                    </div>
-                    <i class="fas fa-check-circle text-5xl opacity-30"></i>
-                </div>
-            </div>
-
-            <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl shadow-lg p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-purple-100 text-sm mb-1">Total Vues</p>
-                        <p class="text-4xl font-bold">
-                            <?= array_sum(array_column($articles, 'view_count')) ?>
-                        </p>
-                    </div>
-                    <i class="fas fa-eye text-5xl opacity-30"></i>
-                </div>
-            </div>
-        </div>
 
         <div class="grid lg:grid-cols-3 gap-8">
             <!-- Formulaire CREATE/UPDATE -->
@@ -167,7 +125,7 @@ if (isset($_GET['edit'])) {
                 <div class="bg-white rounded-xl shadow-lg p-6 sticky top-4">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6">
                         <i class="fas fa-<?= $article_to_edit ? 'edit' : 'plus-circle' ?> mr-2"></i>
-                        <?= $article_to_edit ? 'Modifier l\'Article' : 'Nouvel Article' ?>
+                        <?= $article_to_edit ? 'Modify l\'Article' : 'Add Article' ?>
                     </h2>
 
                     <form method="POST" action="">
@@ -176,7 +134,7 @@ if (isset($_GET['edit'])) {
                         <?php endif; ?>
 
                         <div class="mb-4">
-                            <label class="block text-gray-700 font-semibold mb-2">Titre *</label>
+                            <label class="block text-gray-700 font-semibold mb-2">Title</label>
                             <input type="text" name="title" required maxlength="50"
                                    value="<?= $article_to_edit ? htmlspecialchars($article_to_edit['title']) : '' ?>"
                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -184,17 +142,17 @@ if (isset($_GET['edit'])) {
                         </div>
 
                         <div class="mb-4">
-                            <label class="block text-gray-700 font-semibold mb-2">Contenu *</label>
+                            <label class="block text-gray-700 font-semibold mb-2">Content</label>
                             <textarea name="content" required rows="8"
                                       class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                       placeholder="Contenu de l'article..."><?= $article_to_edit ? htmlspecialchars($article_to_edit['content']) : '' ?></textarea>
                         </div>
 
                         <div class="mb-4">
-                            <label class="block text-gray-700 font-semibold mb-2">Catégorie *</label>
+                            <label class="block text-gray-700 font-semibold mb-2">Category</label>
                             <select name="id_categorie" required
                                     class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <option value="">Sélectionnez une catégorie</option>
+                                <option value="">Select Category</option>
                                 <?php foreach($categories as $cat): ?>
                                     <option value="<?= $cat['id_categorie'] ?>"
                                             <?= ($article_to_edit && $article_to_edit['id_categorie'] == $cat['id_categorie']) ? 'selected' : '' ?>>
@@ -205,17 +163,17 @@ if (isset($_GET['edit'])) {
                         </div>
 
                         <div class="mb-6">
-                            <label class="block text-gray-700 font-semibold mb-2">Statut *</label>
+                            <label class="block text-gray-700 font-semibold mb-2">Statut</label>
                             <select name="status" required
                                     class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                 <option value="draft" <?= ($article_to_edit && $article_to_edit['status'] === 'draft') ? 'selected' : '' ?>>
-                                    Brouillon
+                                    Draft
                                 </option>
                                 <option value="published" <?= ($article_to_edit && $article_to_edit['status'] === 'published') ? 'selected' : '' ?>>
-                                    Publié
+                                    Published
                                 </option>
                                 <option value="archived" <?= ($article_to_edit && $article_to_edit['status'] === 'archived') ? 'selected' : '' ?>>
-                                    Archivé
+                                    Archived
                                 </option>
                             </select>
                         </div>
@@ -224,16 +182,16 @@ if (isset($_GET['edit'])) {
                             <?php if ($article_to_edit): ?>
                                 <button type="submit" name="update_article"
                                         class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition">
-                                    <i class="fas fa-save mr-2"></i>Modifier
+                                    <i class="fas fa-save mr-2"></i>Update
                                 </button>
                                 <a href="author.php"
                                    class="flex-1 bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700 transition text-center">
-                                    <i class="fas fa-times mr-2"></i>Annuler
+                                    <i class="fas fa-times mr-2"></i>Cancel
                                 </a>
                             <?php else: ?>
                                 <button type="submit" name="create_article"
                                         class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
-                                    <i class="fas fa-plus mr-2"></i>Créer l'Article
+                                    <i class="fas fa-plus mr-2"></i>Add Article
                                 </button>
                             <?php endif; ?>
                         </div>
@@ -245,14 +203,13 @@ if (isset($_GET['edit'])) {
             <div class="lg:col-span-2">
                 <div class="bg-white rounded-xl shadow-lg p-6">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6">
-                        <i class="fas fa-list mr-2"></i>Mes Articles (<?= count($articles) ?>)
+                        <i class="fas fa-list mr-2"></i>My Articles (<?= count($articles) ?>)
                     </h2>
 
                     <?php if (empty($articles)): ?>
                         <div class="text-center py-12 text-gray-500">
                             <i class="fas fa-inbox text-6xl mb-4"></i>
-                            <p class="text-lg">Aucun article pour le moment</p>
-                            <p class="text-sm">Créez votre premier article pour commencer !</p>
+                            <p class="text-lg">No articles now</p>
                         </div>
                     <?php else: ?>
                         <div class="space-y-4">
@@ -264,7 +221,7 @@ if (isset($_GET['edit'])) {
                                                 <?= htmlspecialchars($article['title']) ?>
                                             </h3>
                                             <p class="text-gray-600 mb-3 line-clamp-2">
-                                                <?= htmlspecialchars(substr($article['content'], 0, 150)) ?>...
+                                                <?= htmlspecialchars($article['content']) ?>
                                             </p>
                                             <div class="flex items-center space-x-4 text-sm text-gray-500">
                                                 <span>
@@ -273,7 +230,7 @@ if (isset($_GET['edit'])) {
                                                 </span>
                                                 <span>
                                                     <i class="far fa-eye mr-1"></i>
-                                                    <?= $article['view_count'] ?> vues
+                                                    <?= $article['view_count'] ?> views
                                                 </span>
                                                 <span class="px-2 py-1 rounded-full text-xs font-semibold
                                                     <?php
@@ -287,12 +244,12 @@ if (isset($_GET['edit'])) {
                                         <div class="flex flex-col space-y-2 ml-4">
                                             <a href="?edit=<?= $article['id_article'] ?>"
                                                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-center">
-                                                <i class="fas fa-edit mr-1"></i>Modifier
+                                                <i class="fas fa-edit mr-1"></i>Update
                                             </a>
                                             <a href="?delete=<?= $article['id_article'] ?>"
-                                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?')"
+                                               onclick="return confirm('Do you want to delete this article ?')"
                                                class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-center">
-                                                <i class="fas fa-trash mr-1"></i>Supprimer
+                                                <i class="fas fa-trash mr-1"></i>Delete
                                             </a>
                                         </div>
                                     </div>
