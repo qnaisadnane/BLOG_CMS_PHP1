@@ -1,4 +1,50 @@
-<
+<?php
+session_start();
+require_once 'database.php';
+
+$error = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    
+    if (!empty($username) && !empty($password)) {
+        // Recupere user
+        $stmt = $conn->prepare("SELECT * FROM utilisateur WHERE username = ?");
+        $stmt->execute([$username]);
+        $user = $stmt->fetch();
+        
+        if ($user) {
+            
+            if (password_verify($password, $user['password'])) {
+                if (in_array($user['role'], ['admin' , 'author'])) {
+                    // Login success
+                    $_SESSION['user_id'] = $user['username'];
+                    $_SESSION['user_name'] = $user['name'];
+                    $_SESSION['user_role'] = $user['role'];
+                    
+                    if ($user['role'] === 'admin') {
+                        header('Location: admin.php');
+                        exit;
+                    } else {
+                        header('Location: author.php');
+                        exit;
+                    }
+                } else {
+                    $error = "only for admins and authors";
+                }
+            } else {
+                $error = "incorrect username or password";
+            }
+        } else {
+            $error = "incorrect username or password";
+        }
+    } else {
+        $error = "select all fields";
+    }
+}
+?>
+
 
 <!DOCTYPE html>
 <html lang="fr">
