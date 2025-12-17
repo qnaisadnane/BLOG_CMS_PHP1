@@ -2,8 +2,30 @@
 session_start();
 require_once 'database.php';
 
-$stmt = $conn->query("SELECT * FROM article");
+$success = '';
+$error = '';
+
+$stmt = $conn->query("SELECT * FROM article WHERE status = 'published'");
 $articles = $stmt->fetchAll();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_comment'])) {
+    $author_name = $_POST['author_name'];
+    $contenu = $_POST['contenu'];
+    $id_article = $_POST['id_article'];
+    
+    if (!empty($author_name) && !empty($contenu) && $id_article > 0) {
+        $stmt = $conn->prepare("INSERT INTO commentaire (contenu, author_name, id_article) VALUES (?, ?, ?)");
+        if ($stmt->execute([$contenu, $author_name, $id_article])) {
+            $success = "Comment created ";
+        } else {
+            $error = "Erreur";
+        }
+    } else {
+        $error = "select all fields";
+    }
+}
+
+
 
 ?>
 <!DOCTYPE html>
@@ -41,7 +63,7 @@ $articles = $stmt->fetchAll();
     </section>
 
     <!-- Messages notification -->
-    <?php if (isset($success)): ?>
+    <?php if (!empty($success)): ?>
     <div class="container mx-auto px-4 mt-6">
         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
             <i class="fas fa-check-circle mr-2"></i><?= htmlspecialchars($success) ?>
@@ -49,7 +71,7 @@ $articles = $stmt->fetchAll();
     </div>
     <?php endif; ?>
 
-    <?php if (isset($error)): ?>
+    <?php if (!empty($error)): ?>
     <div class="container mx-auto px-4 mt-6">
         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
             <i class="fas fa-exclamation-circle mr-2"></i><?= htmlspecialchars($error) ?>
@@ -67,6 +89,12 @@ $articles = $stmt->fetchAll();
                 <div class="space-y-8">
                     <?php foreach($articles as $article): ?>
                         
+                        <?php
+                        $stmt_comments = $conn->prepare("SELECT * FROM commentaire WHERE id_article = ? ORDER BY date_creation DESC");
+                        $stmt_comments->execute([$article['id_article']]);
+                        $comments = $stmt_comments->fetchAll();
+                        ?>
+
                         <article class="bg-white rounded-xl shadow-lg overflow-hidden">
                             <!-- header articles -->
                             <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-8 text-white">
@@ -75,7 +103,7 @@ $articles = $stmt->fetchAll();
                                     <span><i class="far fa-user mr-2"></i><?= htmlspecialchars($article['username']) ?></span>
                                     <span><i class="far fa-calendar mr-2"></i><?= date('d/m/Y', strtotime($article['date_creation'])) ?></span>
                                     <span><i class="far fa-eye mr-2"></i><?= $article['view_count'] ?> vues</span>
-                                    
+                                    <span><i class="far fa-comments mr-2"></i><?= count($comments) ?> commentaire(s)</span>
                                 </div>
                             </div>
 
@@ -117,7 +145,35 @@ $articles = $stmt->fetchAll();
                                             </button>
                                         </form>
                                     </div>
-
+                                
+                                    <?php if (empty($comments)): ?>
+                                        <p class="text-gray-500 text-center py-8">
+                                            <i class="far fa-comment-slash text-4xl mb-3 block"></i>
+                                            Aucun commentaire. Soyez le premier à commenter !
+                                        </p>
+                                    <?php else: ?>
+                                        <div class="space-y-4">
+                                            <?php foreach($comments as $comment): ?>
+                                                <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-blue-500">
+                                                    <div class="flex items-start">
+                                                        <div class="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                                                            <i class="fas fa-user"></i>
+                                                        </div>
+                                                        <div class="flex-1">
+                                                            <div class="flex items-center justify-between mb-2">
+                                                                <h5 class="font-semibold text-gray-800"><?= htmlspecialchars($comment['author_name']) ?></h5>
+                                                                <span class="text-sm text-gray-500">
+                                                                    <i class="far fa-clock mr-1"></i>
+                                                                    <?= date('d/m/Y à H:i', strtotime($comment['date_creation'])) ?>
+                                                                </span>
+                                                            </div>
+                                                            <p class="text-gray-700"><?= nl2br(htmlspecialchars($comment['contenu'])) ?></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </article>
