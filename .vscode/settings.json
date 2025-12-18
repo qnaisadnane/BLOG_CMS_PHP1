@@ -1,4 +1,5 @@
 {
     "github.copilot.nextEditSuggestions.allowWhitespaceOnlyChanges": false,
-    "github.copilot.chat.useProjectTemplates": false
+    "github.copilot.chat.useProjectTemplates": false,
+    "liveServer.settings.port": 5501
 }
