@@ -258,6 +258,7 @@ $avg_views = $conn->query("SELECT AVG(view_count) as average FROM Article")->fet
                 </div>
             </div>
         </div>
+
     </div>
 
 </div>       
