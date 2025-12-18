@@ -13,7 +13,7 @@ if(isset($_POST['add_category'])){
     if(!empty($nom_categorie) && !empty($description_c)){
         $stmt = $conn->prepare("INSERT INTO categorie (nom_categorie, description_c) VALUES (?, ?)");
         if($stmt->execute([$nom_categorie, $description_c])){
-            $success = "Catégorie ajoutée avec succès !";
+            $success = "Categorie ajoutee avec succes !";
         } else {
             $error = "Erreur lors de l'ajout de la catégorie.";
         }
@@ -123,14 +123,14 @@ if(isset($_GET['edit_category'])){
                             <?php endif; ?>
                             
                             <div class="mb-4">
-                                <label class="block text-gray-700 font-semibold mb-2">Nom *</label>
+                                <label class="block text-gray-700 font-semibold mb-2">Nom</label>
                                 <input type="text" name="nom_categorie" required maxlength="30"
                                        value="<?= $category_to_edit ? htmlspecialchars($category_to_edit['nom_categorie']) : '' ?>"
                                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
                                        placeholder="Ex: Technologie">
                             </div>
                             <div class="mb-4">
-                                <label class="block text-gray-700 font-semibold mb-2">Description *</label>
+                                <label class="block text-gray-700 font-semibold mb-2">Description </label>
                                 <textarea name="description_c" required rows="4"
                                           class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
                                           placeholder="Description de la catégorie"><?= $category_to_edit ? htmlspecialchars($category_to_edit['description_c']) : '' ?></textarea>

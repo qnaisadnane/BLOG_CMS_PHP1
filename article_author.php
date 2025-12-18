@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_comment'])) {
         </div>
     </div>
     
-    <!-- Lien "Article" ajouté au centre -->
+    <!-- Lien "Article" ajoute au centre -->
     <div class="flex justify-center">
         <a href="author.php" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
             <i class="fas fa-house mr-2"></i>Home
@@ -162,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_comment'])) {
                                     <?php if (empty($comments)): ?>
                                         <p class="text-gray-500 text-center py-8">
                                             <i class="far fa-comment-slash text-4xl mb-3 block"></i>
-                                            Aucun commentaire. Soyez le premier à commenter !
+                                            Aucun commentaire
                                         </p>
                                     <?php else: ?>
                                         <div class="space-y-4">
@@ -177,10 +177,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_comment'])) {
                                                                 <h5 class="font-semibold text-gray-800"><?= htmlspecialchars($comment['author_name']) ?></h5>
                                                                 <span class="text-sm text-gray-500">
                                                                     <i class="far fa-clock mr-1"></i>
-                                                                    <?= date('d/m/Y à H:i', strtotime($comment['date_creation'])) ?>
+                                                                    <?= $comment['date_creation'] ?>
                                                                 </span>
                                                             </div>
-                                                            <p class="text-gray-700"><?= nl2br(htmlspecialchars($comment['contenu'])) ?></p>
+                                                            <p class="text-gray-700"><?= htmlspecialchars($comment['contenu']) ?></p>
                                                         </div>
                                                     </div>
                                                 </div>

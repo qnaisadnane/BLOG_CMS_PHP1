@@ -95,7 +95,7 @@ if (isset($_GET['edit'])) {
         </div>
     </div>
     
-    <!-- Lien "Article" ajouté au centre -->
+    <!-- Lien "Article" ajoute au centre -->
     <div class="flex justify-center">
         <a href="article_author.php" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
             <i class="fas fa-newspaper mr-2"></i>Article

@@ -20,7 +20,7 @@ if(isset($_POST['add_author'])){
         if($stmt->execute([$username, $name, $email, $hashed_password])){
             $success = "Auteur ajouté avec succès !";
         } else {
-            $error = "Erreur lors de l'ajout de l'auteur (username existe déjà ?).";
+            $error = "Erreur lors de l'ajout de l'auteur .";
         }
     } else {
         $error = "Veuillez remplir tous les champs.";
@@ -119,7 +119,7 @@ if(isset($_GET['edit_author'])){
 
         <div class="mt-12">
             <h2 class="text-3xl font-bold text-gray-800 mb-6">
-                <i class="fas fa-pen-fancy text-blue-600 mr-2"></i>Gestion des Auteurs (Author uniquement)
+                <i class="fas fa-pen-fancy text-blue-600 mr-2"></i>Gestion des Auteurs 
             </h2>
 
             <div class="grid lg:grid-cols-3 gap-6">
@@ -132,7 +132,7 @@ if(isset($_GET['edit_author'])){
                         </h3>
                         <form method="POST" action="">
                             <div class="mb-4">
-                                <label class="block text-gray-700 font-semibold mb-2">Username *</label>
+                                <label class="block text-gray-700 font-semibold mb-2">Username </label>
                                 <input type="text" name="username" required maxlength="30"
                                        value="<?= $author_to_edit ? htmlspecialchars($author_to_edit['username']) : '' ?>"
                                        <?= $author_to_edit ? 'readonly' : '' ?>
@@ -140,14 +140,14 @@ if(isset($_GET['edit_author'])){
                                        placeholder="Ex: jean_123">
                             </div>
                             <div class="mb-4">
-                                <label class="block text-gray-700 font-semibold mb-2">Nom *</label>
+                                <label class="block text-gray-700 font-semibold mb-2">Nom </label>
                                 <input type="text" name="name" required maxlength="30"
                                        value="<?= $author_to_edit ? htmlspecialchars($author_to_edit['name']) : '' ?>"
                                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                                        placeholder="Jean Dupont">
                             </div>
                             <div class="mb-4">
-                                <label class="block text-gray-700 font-semibold mb-2">Email *</label>
+                                <label class="block text-gray-700 font-semibold mb-2">Email </label>
                                 <input type="email" name="email" required maxlength="30"
                                        value="<?= $author_to_edit ? htmlspecialchars($author_to_edit['email']) : '' ?>"
                                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -201,7 +201,7 @@ if(isset($_GET['edit_author'])){
                                     <?php if(empty($auteurs)): ?>
                                         <tr>
                                             <td colspan="5" class="px-6 py-12 text-center text-gray-500">
-                                                Aucun auteur enregistré
+                                                Aucun auteur enregistre
                                             </td>
                                         </tr>
                                     <?php else: ?>

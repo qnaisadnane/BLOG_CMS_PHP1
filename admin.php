@@ -70,7 +70,7 @@ $avg_views = $conn->query("SELECT AVG(view_count) as average FROM Article")->fet
             
             <li>
                 <a href="categorie_admin.php" class="hover:text-indigo-600 transition flex items-center gap-2">
-                    <i class="fas fa-folder"></i> Catégories
+                    <i class="fas fa-folder"></i> Categories
                 </a>
             </li>
             <li>
