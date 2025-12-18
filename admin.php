@@ -8,6 +8,18 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     exit;
 }
 
+$stmt = $conn->query("SELECT * FROM commentaire");
+$commentaires = $stmt->fetchAll();
+
+if(isset($_GET['delete'])){
+   $id_commentaire = $_GET['delete'];
+   $stmt = $conn->prepare("DELETE FROM commentaire WHERE id_commentaire = ?");
+    $stmt->execute([$id_commentaire]);
+
+    header("Location: admin.php"); 
+    exit;
+}
+
 // Nombre total article
 $total_articles = $conn->query("SELECT COUNT(*) as total FROM Article")->fetch()['total'];
 
@@ -53,6 +65,21 @@ $avg_views = $conn->query("SELECT AVG(view_count) as average FROM Article")->fet
                         <h1 class="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
                         <p class="text-sm text-gray-600">Welcome, <?= htmlspecialchars($_SESSION['user_name']) ?></p>
                     </div>
+
+                    <ul class="flex flex-wrap justify-center gap-6 md:gap-8 font-semibold text-gray-700">
+            
+            <li>
+                <a href="categorie_admin.php" class="hover:text-indigo-600 transition flex items-center gap-2">
+                    <i class="fas fa-folder"></i> Catégories
+                </a>
+            </li>
+            <li>
+                <a href="utilisateur_admin.php" class="hover:text-indigo-600 transition flex items-center gap-2">
+                    <i class="fas fa-users"></i> Utilisateurs
+                </a>
+            </li>
+            </ul>
+
                 </div>
                 <div class="flex items-center space-x-4">
                     
@@ -157,8 +184,83 @@ $avg_views = $conn->query("SELECT AVG(view_count) as average FROM Article")->fet
                 </div>
             </div>
         </div>
-        </div>
 
+        <div class="mt-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-comments text-purple-600 mr-2"></i>Gestion des Commentaires
+            </h2>
+
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <!-- Header du tableau -->
+                <div class="bg-gradient-to-r from-purple-500 to-indigo-600 p-4">
+                    <h3 class="text-xl font-bold text-white">Tous les commentaires</h3>
+                </div>
+
+                <!-- Tableau des commentaires -->
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 border-b-2 border-gray-200">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Utilisateur</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Commentaire</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Article ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+
+                            <?php 
+                            if(!empty($commentaires)):
+                            ?>
+
+                            <?php
+                            foreach($commentaires as $commentaire):
+                            ?>
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="text-sm font-medium text-gray-900"><?=$commentaire['id_commentaire']?></span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900"><?=$commentaire['author_name']?></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900 max-w-xs truncate">
+                                        <?=$commentaire['contenu']?>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900"><?=$commentaire['id_article']?></div>
+                                    
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900"><?=$commentaire['date_creation']?></div>
+                                    
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <a href="?delete=<?= $commentaire['id_commentaire'] ?>"
+                                               onclick="return confirm('Do you want to delete this comment ?')"
+                                               class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-center">
+                                                <i class="fas fa-trash mr-1"></i>Delete
+                                            </a>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>       
     </main>
 </body>
 </html>
