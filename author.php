@@ -87,20 +87,27 @@ if (isset($_GET['edit'])) {
     <header class="bg-white shadow-md">
         <nav class="container mx-auto px-4 py-4">
             <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-4">
-                    <i class="fas fa-pen-fancy text-3xl text-blue-600"></i>
-                    <div>
-                        <h1 class="text-2xl font-bold text-gray-800">Author</h1>
-                        <p class="text-sm text-gray-600">Welcome, <?= htmlspecialchars($_SESSION['user_name']) ?></p>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-4">
-                    
-                    <a href="logout.php" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">
-                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
-                    </a>
-                </div>
-            </div>
+    <div class="flex items-center space-x-4">
+        <i class="fas fa-pen-fancy text-3xl text-blue-600"></i>
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Author</h1>
+            <p class="text-sm text-gray-600">Welcome, <?= htmlspecialchars($_SESSION['user_name']) ?></p>
+        </div>
+    </div>
+    
+    <!-- Lien "Article" ajouté au centre -->
+    <div class="flex justify-center">
+        <a href="article_author.php" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+            <i class="fas fa-newspaper mr-2"></i>Article
+        </a>
+    </div>
+    
+    <div class="flex items-center space-x-4">
+        <a href="logout.php" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-red-700 transition">
+            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+        </a>
+    </div>
+</div>
         </nav>
     </header>
 
